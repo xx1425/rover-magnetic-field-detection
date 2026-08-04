@@ -64,14 +64,30 @@ The Hall sensor outputs an analog voltage proportional to the magnetic field str
 
 Open Serial Monitor at **115200 baud**.
 
-**Example output:**
+**Example output（debugmode on):**
 Calibrating...
 Center = 512
 System Ready
-
+532
+528
+530
+545
+560
 ===== RESULT =====
 DIRECTION: UP
+==================
+512
+510
+508
+505
+===== RESULT =====
 NO STONE
+==================
+498
+492
+480
+===== RESULT =====
+DIRECTION: DOWN
 ==================
 
 
