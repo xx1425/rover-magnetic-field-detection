@@ -1,4 +1,3 @@
-# rover-magnetic-field-detection
 # Rover Magnetic Field Detection System
 
 A simple magnetic field detection system for rover applications using Allegro A1324 Hall sensor and Arduino.
@@ -7,7 +6,7 @@ A simple magnetic field detection system for rover applications using Allegro A1
 
 ## What's in this repository
 
-- `hall_sensor_test.ino` - Arduino firmware for reading the sensor
+- `magnet_detect_final_edition.ino` - Arduino firmware for reading the sensor
 - `A1324-5-6-Datasheet.pdf` - Hall sensor datasheet
 - Circuit schematic (see image: hall_sensor_opamp_amplify.png)
 
@@ -55,8 +54,9 @@ The Hall sensor outputs an analog voltage proportional to the magnetic field str
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `detectThreshold` | 12 | Minimum strength to trigger detection |
-| `stableDelta` | 5 | Max variation to consider "stable" |
-| `stableRequired` | 4 | Number of stable readings needed |
+| `releaseThreshold` | 12 | Reset detection when strength drops below this |
+| `stableDelta` | 5 | Max variation to consider the reading "stable" |
+| `stableRequired` | 4 | Number of consecutive stable readings needed |
 
 ---
 
@@ -64,7 +64,9 @@ The Hall sensor outputs an analog voltage proportional to the magnetic field str
 
 Open Serial Monitor at **115200 baud**.
 
-**Example output（debugmode on):**
+During normal operation (debug mode ON):
+
+```
 Calibrating...
 Center = 512
 System Ready
@@ -89,11 +91,43 @@ NO STONE
 ===== RESULT =====
 DIRECTION: DOWN
 ==================
+```
 
+Output Explanation:
 
-- `DIRECTION: UP` → Hall value > center (south pole detected)
-- `DIRECTION: DOWN` → Hall value < center (north pole detected)
-- `NO STONE` → No significant magnetic field detected
+| Output | Meaning |
+|--------|---------|
+| `Calibrating...` | System is taking 100 readings to find center value |
+| `Center = 512` | No-field baseline value (varies with your sensor) |
+| `System Ready` | Calibration complete, ready to detect |
+| `[number]` | Raw ADC reading from hallPin (debug output) |
+| `===== RESULT =====` | A stable magnetic field has been detected |
+| `DIRECTION: UP` | hallValue > centerValue (south pole / increasing field) |
+| `DIRECTION: DOWN` | hallValue < centerValue (north pole / decreasing field) |
+| `NO STONE` | Field strength below detection threshold |
+| `==================` | End of result block |
+
+**Note:** 
+- `debugMode = true` (default): Raw ADC values are printed every loop.
+- `debugMode = false`: Only detection results are printed.
+
+---
+
+## Threshold Tuning
+
+These values in the code control detection sensitivity:
+
+```cpp
+const int detectThreshold = 12;    // Minimum strength to trigger detection
+const int releaseThreshold = 12;   // Reset detection when strength drops below this
+const int stableDelta = 5;         // Max variation to consider the reading "stable"
+const int stableRequired = 4;      // Number of consecutive stable readings required
+```
+
+**Adjust for your environment:**
+- Higher `detectThreshold` → less sensitive (ignore small magnetic fields)
+- Lower `detectThreshold` → more sensitive (detect weaker fields)
+- Increase `stableRequired` → more stable but slower response
 
 ---
 
